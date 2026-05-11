@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FileNoteManager.Core\FileNoteManager.Core.csproj" />
+    <ProjectReference Include="..\FileNoteManager.Shell\FileNoteManager.Shell.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+  </ItemGroup>
+
+  <!-- Copy comhost.dll + its required companion files so the .NET 8 COM hosting works.
+       comhost.dll reads runtimeconfig.json to locate the .NET 8 runtime;
+       without it the COM server fails to load silently. -->
+  <Target Name="CopyShellComHost" AfterTargets="Build">
+    <PropertyGroup>
+      <ShellBinDir>$(MSBuildProjectDirectory)\..\FileNoteManager.Shell\bin\$(Configuration)\net8.0-windows\</ShellBinDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <ShellComHostFiles Include="$(ShellBinDir)FileNoteManager.Shell.comhost.dll"
+                         Condition="Exists('$(ShellBinDir)FileNoteManager.Shell.comhost.dll')" />
+      <ShellComHostFiles Include="$(ShellBinDir)FileNoteManager.Shell.runtimeconfig.json"
+                         Condition="Exists('$(ShellBinDir)FileNoteManager.Shell.runtimeconfig.json')" />
+      <ShellComHostFiles Include="$(ShellBinDir)FileNoteManager.Shell.deps.json"
+                         Condition="Exists('$(ShellBinDir)FileNoteManager.Shell.deps.json')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ShellComHostFiles)"
+          DestinationFolder="$(OutputPath)"
+          SkipUnchangedFiles="true"
+          ContinueOnError="true" />
+  </Target>
+
+</Project>
