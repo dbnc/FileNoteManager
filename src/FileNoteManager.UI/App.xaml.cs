@@ -1,4 +1,6 @@
 ﻿using System.Windows;
+using FileNoteManager.Core.Interfaces;
+using FileNoteManager.Core.Repositories.Interfaces;
 using FileNoteManager.Core.Services;
 using FileNoteManager.Shell;
 using FileNoteManager.UI.ViewModels;
@@ -20,6 +22,10 @@ public partial class App : Application
         base.OnStartup(e);
 
         _services = BuildServiceProvider();
+
+        // Start the file watcher immediately so rename/delete events update
+        // the database even when the main window has never been opened.
+        StartFileWatcher(_services);
 
         var pathArg = ParsePathArgument(e.Args);
 
@@ -48,6 +54,19 @@ public partial class App : Application
             var window = _services.GetRequiredService<MainWindow>();
             window.Show();
         }
+    }
+
+    private static void StartFileWatcher(IServiceProvider services)
+    {
+        try
+        {
+            var watcher = services.GetRequiredService<IFileWatcherService>();
+            var repo    = services.GetRequiredService<INoteRepository>();
+            foreach (var note in repo.GetAll())
+                watcher.RegisterPath(note.Path);
+            watcher.Start();
+        }
+        catch { /* never crash startup */ }
     }
 
     private static IServiceProvider BuildServiceProvider()

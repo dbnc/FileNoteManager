@@ -12,12 +12,14 @@ namespace FileNoteManager.UI.ViewModels;
 public partial class QuickNoteViewModel : ObservableObject
 {
     private readonly INoteService _noteService;
+    private readonly IFileWatcherService _fileWatcher;
 
     public event Action? RequestClose;
 
-    public QuickNoteViewModel(INoteService noteService)
+    public QuickNoteViewModel(INoteService noteService, IFileWatcherService fileWatcher)
     {
-        _noteService = noteService;
+        _noteService  = noteService;
+        _fileWatcher  = fileWatcher;
         Tags = new ObservableCollection<string>();
     }
 
@@ -112,6 +114,9 @@ public partial class QuickNoteViewModel : ObservableObject
         try
         {
             _noteService.UpdateNote(FilePath, Content, Tags);
+            // Ensure the watcher tracks this path so future renames/deletes
+            // are reflected in the database even without the main window open.
+            _fileWatcher.RegisterPath(FilePath);
             RequestClose?.Invoke();
         }
         catch (Exception ex)
