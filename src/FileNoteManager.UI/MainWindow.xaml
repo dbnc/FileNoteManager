@@ -222,7 +222,7 @@
                                     </Style>
                                 </Button.Style>
                             </Button>
-                            <Button Content="�  打开位置" Command="{Binding OpenInExplorerCommand}"
+                            <Button Content=" 打开位置" Command="{Binding OpenInExplorerCommand}"
                                     Background="#2980B9" Foreground="White"
                                     BorderThickness="0" Padding="16,8"
                                     FontSize="13" Cursor="Hand"
@@ -239,7 +239,7 @@
                                     </Style>
                                 </Button.Style>
                             </Button>
-                            <Button Content="�🗑  删除备注" Command="{Binding DeleteNoteCommand}"
+                            <Button Content="🗑 删除备注" Command="{Binding DeleteNoteCommand}"
                                     Background="#E74C3C" Foreground="White"
                                     BorderThickness="0" Padding="16,8"
                                     FontSize="13" Cursor="Hand">

@@ -26,9 +26,12 @@ public class FileNoteInfoTipHandler : IQueryInfo, IPersistFile
 
     // ── IQueryInfo ──────────────────────────────────────────────
 
-    public int GetInfoTip(uint dwFlags, out string? ppwszTip)
+    public int GetInfoTip(uint dwFlags, out IntPtr ppwszTip)
     {
-        ppwszTip = null;
+        // Must allocate with CoTaskMemAlloc — Explorer calls CoTaskMemFree on the pointer.
+        // Do NOT use automatic [MarshalAs(LPWStr)] out string: it is unreliable in
+        // .NET 8 COM hosting and produces garbled text for multi-byte (e.g. Chinese) content.
+        ppwszTip = IntPtr.Zero;
         if (_filePath == null) return 0;
 
         try
@@ -37,9 +40,8 @@ public class FileNoteInfoTipHandler : IQueryInfo, IPersistFile
             if (!string.IsNullOrWhiteSpace(note))
             {
                 // Truncate long notes in the tooltip (max 300 chars)
-                ppwszTip = note.Length > 300
-                    ? note.Substring(0, 297) + "..."
-                    : note;
+                if (note.Length > 300) note = note.Substring(0, 297) + "...";
+                ppwszTip = Marshal.StringToCoTaskMemUni(note);
             }
         }
         catch

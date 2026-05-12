@@ -12,8 +12,7 @@ namespace FileNoteManager.Shell.InfoTip;
 public interface IQueryInfo
 {
     [PreserveSig]
-    int GetInfoTip(uint dwFlags,
-        [MarshalAs(UnmanagedType.LPWStr)] out string? ppwszTip);
+    int GetInfoTip(uint dwFlags, out IntPtr ppwszTip);
 
     [PreserveSig]
     int GetInfoFlags(out uint pdwFlags);
